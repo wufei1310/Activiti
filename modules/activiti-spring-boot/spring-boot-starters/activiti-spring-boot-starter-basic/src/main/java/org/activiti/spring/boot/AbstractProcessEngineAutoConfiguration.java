@@ -237,7 +237,7 @@ public abstract class AbstractProcessEngineAutoConfiguration
   }
   @Bean
   @ConditionalOnMissingBean
-  public org.activiti.form.api.FormService formEngineFormeyService(ProcessEngine processEngine) {
+  public org.activiti.form.api.FormService formEngineFormService(ProcessEngine processEngine) {
     return processEngine.getFormEngineFormService();
   }
 
