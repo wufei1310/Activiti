@@ -1,0 +1,22 @@
+spring:
+  datasource:
+      driver-class-name: org.h2.Driver
+      url: jdbc:h2:mem:activiti;DB_CLOSE_DELAY=-1
+      username: sa
+      password:
+  jpa:
+    properties:
+         hibernate:
+                    cache:
+                       use_second_level_cache: false
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    open-in-view: true
+  freemarker:
+    check-template-location: false
+liquibase:
+  enabled: false
+server:
+  port: 9999
+  context-path: "/activiti-app"
