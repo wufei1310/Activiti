@@ -29,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Frederik Heremans
  */
-gst@Service
+@Service
 @DependsOn("clock")
 public class CommentService {
 

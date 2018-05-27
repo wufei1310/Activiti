@@ -30,12 +30,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * Installs a Spring Security adapter for the Activiti
- * {@link org.activiti.engine.IdentityService}.
+ * {@link IdentityService}.
  *
  * @author Josh Long
  */
 @Configuration
-@AutoConfigureBefore(org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class)
+//@AutoConfigureBefore(org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class)
+@AutoConfigureBefore(org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration .class)
 public class SecurityAutoConfiguration {
 
   @Configuration

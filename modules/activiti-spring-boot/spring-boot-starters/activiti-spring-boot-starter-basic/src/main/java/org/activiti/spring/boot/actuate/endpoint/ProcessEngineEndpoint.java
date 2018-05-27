@@ -31,7 +31,7 @@ import java.util.*;
  */
 //@ConfigurationProperties(prefix = "endpoints.activiti")
 @Endpoint(id = "activiti")
-public class ProcessEngineEndpoint {
+public class ProcessEngineEndpoint{
 
     private final ProcessEngine processEngine;
 

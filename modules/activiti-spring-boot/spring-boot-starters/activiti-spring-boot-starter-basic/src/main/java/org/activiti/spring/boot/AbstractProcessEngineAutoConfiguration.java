@@ -19,6 +19,8 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import org.activiti.dmn.engine.DmnEngineConfiguration;
+import org.activiti.dmn.engine.configurator.DmnEngineConfigurator;
 import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.IdentityService;
@@ -29,6 +31,8 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.runtime.Clock;
 import org.activiti.form.api.FormRepositoryService;
+import org.activiti.form.engine.FormEngineConfiguration;
+import org.activiti.form.engine.configurator.FormEngineConfigurator;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringAsyncExecutor;
 import org.activiti.spring.SpringCallerRunsRejectedJobsHandler;
@@ -37,6 +41,7 @@ import org.activiti.spring.SpringRejectedJobsHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -56,7 +61,7 @@ public abstract class AbstractProcessEngineAutoConfiguration
 
   @Autowired
   private ResourcePatternResolver resourceLoader;
-
+  
   @Autowired(required=false)
   private ProcessEngineConfigurationConfigurer processEngineConfigurationConfigurer;
 
@@ -64,8 +69,8 @@ public abstract class AbstractProcessEngineAutoConfiguration
   public SpringAsyncExecutor springAsyncExecutor(TaskExecutor taskExecutor) {
     return new SpringAsyncExecutor(taskExecutor, springRejectedJobsHandler());
   }
-
-  @Bean
+  
+  @Bean 
   public SpringRejectedJobsHandler springRejectedJobsHandler() {
     return new SpringCallerRunsRejectedJobsHandler();
   }
@@ -79,18 +84,18 @@ public abstract class AbstractProcessEngineAutoConfiguration
         this.activitiProperties.isCheckProcessDefinitions());
 
     SpringProcessEngineConfiguration conf = super.processEngineConfigurationBean(
-        procDefResources.toArray(new Resource[procDefResources.size()]), dataSource,
+        procDefResources.toArray(new Resource[procDefResources.size()]), dataSource, 
         platformTransactionManager, springAsyncExecutor);
 
     conf.setDeploymentName(defaultText(activitiProperties.getDeploymentName(), conf.getDeploymentName()));
     conf.setDatabaseSchema(defaultText(activitiProperties.getDatabaseSchema(), conf.getDatabaseSchema()));
     conf.setDatabaseSchemaUpdate(defaultText(activitiProperties.getDatabaseSchemaUpdate(), conf.getDatabaseSchemaUpdate()));
-
+    
     conf.setDbIdentityUsed(activitiProperties.isDbIdentityUsed());
     conf.setDbHistoryUsed(activitiProperties.isDbHistoryUsed());
-
+    
     conf.setAsyncExecutorActivate(activitiProperties.isAsyncExecutorActivate());
-
+    
     conf.setMailServerHost(activitiProperties.getMailServerHost());
     conf.setMailServerPort(activitiProperties.getMailServerPort());
     conf.setMailServerUsername(activitiProperties.getMailServerUserName());
@@ -98,7 +103,7 @@ public abstract class AbstractProcessEngineAutoConfiguration
     conf.setMailServerDefaultFrom(activitiProperties.getMailServerDefaultFrom());
     conf.setMailServerUseSSL(activitiProperties.isMailServerUseSsl());
     conf.setMailServerUseTLS(activitiProperties.isMailServerUseTls());
-
+    
     conf.setHistoryLevel(activitiProperties.getHistoryLevel());
 
     if (activitiProperties.getCustomMybatisMappers() != null) {
@@ -116,14 +121,27 @@ public abstract class AbstractProcessEngineAutoConfiguration
     if (activitiProperties.getCustomMybatisXMLMappers() != null) {
       conf.setCustomMybatisXMLMappers(new HashSet<String>(activitiProperties.getCustomMybatisXMLMappers()));
     }
-
+    
     if (processEngineConfigurationConfigurer != null) {
     	processEngineConfigurationConfigurer.configure(conf);
     }
+    FormEngineConfiguration formEngineConfiguration = new FormEngineConfiguration();
+    formEngineConfiguration.setDataSource(dataSource);
+
+    FormEngineConfigurator formEngineConfigurator = new FormEngineConfigurator();
+    formEngineConfigurator.setFormEngineConfiguration(formEngineConfiguration);
+    conf.addConfigurator(formEngineConfigurator);
+
+    DmnEngineConfiguration dmnEngineConfiguration = new DmnEngineConfiguration();
+    dmnEngineConfiguration.setDataSource(dataSource);
+
+    DmnEngineConfigurator dmnEngineConfigurator = new DmnEngineConfigurator();
+    dmnEngineConfigurator.setDmnEngineConfiguration(dmnEngineConfiguration);
+    conf.addConfigurator(dmnEngineConfigurator);
 
     return conf;
   }
-
+  
   protected Set<Class<?>> getCustomMybatisMapperClasses(List<String> customMyBatisMappers) {
     Set<Class<?>> mybatisMappers = new HashSet<Class<?>>();
     for (String customMybatisMapperClassName : customMyBatisMappers) {
@@ -207,29 +225,25 @@ public abstract class AbstractProcessEngineAutoConfiguration
   public IdentityService identityServiceBean(ProcessEngine processEngine) {
     return super.identityServiceBean(processEngine);
   }
+  @ConditionalOnMissingBean
+  @Bean
+  public Clock clock(SpringProcessEngineConfiguration configuration ) {
+    return configuration.getClock();
+  }
+  @Bean
+  @ConditionalOnMissingBean
+  public FormRepositoryService formEngineRepositoryService(ProcessEngine processEngine) {
+    return processEngine.getFormEngineRepositoryService();
+  }
+  @Bean
+  @ConditionalOnMissingBean
+  public org.activiti.form.api.FormService formEngineFormeyService(ProcessEngine processEngine) {
+    return processEngine.getFormEngineFormService();
+  }
 
   @Bean
   @ConditionalOnMissingBean
   public TaskExecutor taskExecutor() {
     return new SimpleAsyncTaskExecutor();
   }
-
-  @Bean
-  @ConditionalOnMissingBean
-  public Clock clock(SpringProcessEngineConfiguration configuration){
-   return configuration.getClock();
-  }
-
-  @Bean
-  @ConditionalOnMissingBean
-  public org.activiti.form.api.FormService formEngineFormService(ProcessEngine processEngine){
-    return processEngine.getFormEngineFormService();
-  }
-
- @Bean
-  @ConditionalOnMissingBean
-  public FormRepositoryService formEngineRepositoryService(ProcessEngine processEngine){
-    return processEngine.getFormEngineRepositoryService();
-  }
-
 }

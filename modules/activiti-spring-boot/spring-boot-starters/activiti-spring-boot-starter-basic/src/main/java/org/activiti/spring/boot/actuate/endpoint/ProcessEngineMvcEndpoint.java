@@ -43,7 +43,6 @@ public class ProcessEngineMvcEndpoint{
     private final ProcessEngineEndpoint processEngineEndpoint;
 
     public ProcessEngineMvcEndpoint(ProcessEngineEndpoint processEngineEndpoint, RepositoryService repositoryService) {
-//        super(processEngineEndpoint);
         this.processEngineEndpoint = processEngineEndpoint;
         this.repositoryService = repositoryService;
     }

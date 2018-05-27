@@ -20,9 +20,9 @@ import org.springframework.web.servlet.DispatcherServlet;
  * @author jimmy
  **/
 @SpringBootApplication(exclude = {
-        SecurityAutoConfiguration.class,
+//        SecurityAutoConfiguration.class,
         org.activiti.spring.boot.SecurityAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class
+//        HibernateJpaAutoConfiguration.class
 
 })
 @Import({ApplicationConfiguration.class})

@@ -12,19 +12,12 @@
  */
 package org.activiti.app.security;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Date;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.activiti.app.domain.idm.PersistentToken;
-import org.activiti.app.security.ActivitiAppUser;
 import org.activiti.app.service.idm.PersistentTokenService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.identity.User;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,13 +25,19 @@ import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.CookieTheftException;
 import org.springframework.security.web.authentication.rememberme.InvalidCookieException;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * Custom implementation of Spring Security's RememberMeServices.
@@ -63,10 +62,10 @@ import org.springframework.util.ReflectionUtils;
  * <p/>
  */
 @Service
-public class CustomPersistentRememberMeServices extends AbstractRememberMeServices implements CustomRememberMeService {
+public class CustomPersistentRememberMeServices extends MyRememberMeService implements CustomRememberMeService {
 
-  private final Logger log = LoggerFactory.getLogger(CustomPersistentRememberMeServices.class);
-
+  private   Logger log = LoggerFactory.getLogger(CustomPersistentRememberMeServices.class);
+  protected   Log logger = LogFactory.getLog(getClass());
   public static final String COOKIE_NAME = "ACTIVITI_REMEMBER_ME";
 
   @Autowired
@@ -183,8 +182,13 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
 
     PersistentToken token = persistentTokenService.getPersistentToken(presentedSeries);
 
-    if (token == null) {
-      // No series match, so we can't authenticate using this cookie
+    String tokenValue = null;
+    try {
+      if (token == null || token.getTokenValue() == null) {
+        // No series match, so we can't authenticate using this cookie
+        throw new RememberMeAuthenticationException("No persistent token found for series id: " + presentedSeries);
+      }
+    } catch (Exception e) {
       throw new RememberMeAuthenticationException("No persistent token found for series id: " + presentedSeries);
     }
 
