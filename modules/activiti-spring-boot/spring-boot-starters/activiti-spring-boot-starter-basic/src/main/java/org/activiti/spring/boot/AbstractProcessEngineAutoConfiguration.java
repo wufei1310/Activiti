@@ -27,6 +27,8 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.runtime.Clock;
+import org.activiti.form.api.FormRepositoryService;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringAsyncExecutor;
 import org.activiti.spring.SpringCallerRunsRejectedJobsHandler;
@@ -54,7 +56,7 @@ public abstract class AbstractProcessEngineAutoConfiguration
 
   @Autowired
   private ResourcePatternResolver resourceLoader;
-  
+
   @Autowired(required=false)
   private ProcessEngineConfigurationConfigurer processEngineConfigurationConfigurer;
 
@@ -62,8 +64,8 @@ public abstract class AbstractProcessEngineAutoConfiguration
   public SpringAsyncExecutor springAsyncExecutor(TaskExecutor taskExecutor) {
     return new SpringAsyncExecutor(taskExecutor, springRejectedJobsHandler());
   }
-  
-  @Bean 
+
+  @Bean
   public SpringRejectedJobsHandler springRejectedJobsHandler() {
     return new SpringCallerRunsRejectedJobsHandler();
   }
@@ -77,18 +79,18 @@ public abstract class AbstractProcessEngineAutoConfiguration
         this.activitiProperties.isCheckProcessDefinitions());
 
     SpringProcessEngineConfiguration conf = super.processEngineConfigurationBean(
-        procDefResources.toArray(new Resource[procDefResources.size()]), dataSource, 
+        procDefResources.toArray(new Resource[procDefResources.size()]), dataSource,
         platformTransactionManager, springAsyncExecutor);
 
     conf.setDeploymentName(defaultText(activitiProperties.getDeploymentName(), conf.getDeploymentName()));
     conf.setDatabaseSchema(defaultText(activitiProperties.getDatabaseSchema(), conf.getDatabaseSchema()));
     conf.setDatabaseSchemaUpdate(defaultText(activitiProperties.getDatabaseSchemaUpdate(), conf.getDatabaseSchemaUpdate()));
-    
+
     conf.setDbIdentityUsed(activitiProperties.isDbIdentityUsed());
     conf.setDbHistoryUsed(activitiProperties.isDbHistoryUsed());
-    
+
     conf.setAsyncExecutorActivate(activitiProperties.isAsyncExecutorActivate());
-    
+
     conf.setMailServerHost(activitiProperties.getMailServerHost());
     conf.setMailServerPort(activitiProperties.getMailServerPort());
     conf.setMailServerUsername(activitiProperties.getMailServerUserName());
@@ -96,7 +98,7 @@ public abstract class AbstractProcessEngineAutoConfiguration
     conf.setMailServerDefaultFrom(activitiProperties.getMailServerDefaultFrom());
     conf.setMailServerUseSSL(activitiProperties.isMailServerUseSsl());
     conf.setMailServerUseTLS(activitiProperties.isMailServerUseTls());
-    
+
     conf.setHistoryLevel(activitiProperties.getHistoryLevel());
 
     if (activitiProperties.getCustomMybatisMappers() != null) {
@@ -114,14 +116,14 @@ public abstract class AbstractProcessEngineAutoConfiguration
     if (activitiProperties.getCustomMybatisXMLMappers() != null) {
       conf.setCustomMybatisXMLMappers(new HashSet<String>(activitiProperties.getCustomMybatisXMLMappers()));
     }
-    
+
     if (processEngineConfigurationConfigurer != null) {
     	processEngineConfigurationConfigurer.configure(conf);
     }
 
     return conf;
   }
-  
+
   protected Set<Class<?>> getCustomMybatisMapperClasses(List<String> customMyBatisMappers) {
     Set<Class<?>> mybatisMappers = new HashSet<Class<?>>();
     for (String customMybatisMapperClassName : customMyBatisMappers) {
@@ -211,4 +213,23 @@ public abstract class AbstractProcessEngineAutoConfiguration
   public TaskExecutor taskExecutor() {
     return new SimpleAsyncTaskExecutor();
   }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public Clock clock(SpringProcessEngineConfiguration configuration){
+   return configuration.getClock();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public org.activiti.form.api.FormService formEngineFormService(ProcessEngine processEngine){
+    return processEngine.getFormEngineFormService();
+  }
+
+ @Bean
+  @ConditionalOnMissingBean
+  public FormRepositoryService formEngineRepositoryService(ProcessEngine processEngine){
+    return processEngine.getFormEngineRepositoryService();
+  }
+
 }

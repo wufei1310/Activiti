@@ -3,20 +3,15 @@ package org.activiti.app.ui;
 import org.activiti.app.conf.ApplicationConfiguration;
 import org.activiti.app.servlet.ApiDispatcherServletConfiguration;
 import org.activiti.app.servlet.AppDispatcherServletConfiguration;
-import org.activiti.app.servlet.WebConfigurer;
+import org.activiti.spring.boot.SecurityAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.boot.context.embedded.ServletListenerRegistrationBean;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.boot.context.web.SpringBootServletInitializer;
-import org.springframework.boot.orm.jpa.EntityScan;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -34,7 +29,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 //@EnableJpaRepositories({ "org.activiti.app.repository" })
 //@EntityScan({ "org.activiti.app.domain" })
 @EnableTransactionManagement
-public class ActivitiUIApplication extends SpringBootServletInitializer{
+public class ActivitiUIApplication extends SpringBootServletInitializer {
     public static void main(String[] args) {
         SpringApplication.run(ActivitiUIApplication.class,args);
     }

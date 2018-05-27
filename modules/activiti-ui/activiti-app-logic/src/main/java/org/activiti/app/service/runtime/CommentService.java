@@ -20,6 +20,7 @@ import org.activiti.app.domain.runtime.Comment;
 import org.activiti.app.repository.runtime.CommentRepository;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.runtime.Clock;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * @author Frederik Heremans
  */
-@Service
+gst@Service
+@DependsOn("clock")
 public class CommentService {
 
     @Inject
