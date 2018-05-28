@@ -1,10 +1,23 @@
-liquibase:
-  enabled: false
 spring:
   freemarker:
     check-template-location: false
   activiti:
     check-process-definitions: false
+  liquibase:
+    check-change-log-location: false
+    enabled: false
+  aop:
+    proxy-target-class: false
+  jpa:
+    open-in-view: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+                cache:
+                   use_second_level_cache: false
 server:
   port: 9999
-  context-path: "/activiti-app"
+  servlet:
+    context-path: "/activiti-app"
