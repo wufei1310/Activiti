@@ -21,3 +21,8 @@ server:
   port: 9999
   servlet:
     context-path: "/activiti-app"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
